@@ -44,17 +44,21 @@ int echo_cmd(char **args) {
 
 int type_cmd(char **args) {
   int index = 1;
+  bool found_cmd;
   int num_commands = sizeof(commands) / sizeof(commands[0]);
   while (args[index] != NULL) {
+    found_cmd = false;
     for (int i = 0; i < num_commands; i++) {
       if (strcmp(args[index], commands[i].name) == 0) {
         printf("%s is a shell builtin\n", args[index]);
+        found_cmd = true;
+        break;
       }
-      else {
-        printf("%s: not found\n");
-      }
-      index++;
     }
+    if (!found_cmd) {
+      printf("%s: not found\n", args[index]);
+    }
+    index++;
   }
 }
 
