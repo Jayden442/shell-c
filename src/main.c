@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #define MAX_ARGS 32
 
@@ -180,7 +181,7 @@ int execute_command(char **args) {
       char **dirnames = parse_path();
       for (int i = 0; dirnames[i]; i++) {
         char *fullpath;
-        if (check_executables(dirnames[i], args[index], &fullpath)) {
+        if (check_executables(dirnames[i], args[0], &fullpath)) {
           found_exe = true;
           for (int i = 0; dirnames[i]; i++) {
             free(dirnames[i]);
