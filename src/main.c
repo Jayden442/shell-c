@@ -34,6 +34,7 @@ int echo_cmd(char **args) {
       break;
     }
     printf(" ");
+    index++;
   }
   printf("\n");
   return 1;
