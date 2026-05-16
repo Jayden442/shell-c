@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 #define MAX_ARGS 32
 
@@ -44,7 +45,7 @@ int echo_cmd(char **args) {
 
 int type_cmd(char **args) {
   int index = 1;
-  bool found_cmd;
+  bool found_builtin;
   int num_commands = sizeof(commands) / sizeof(commands[0]);
   while (args[index] != NULL) {
     found_cmd = false;
@@ -55,11 +56,72 @@ int type_cmd(char **args) {
         break;
       }
     }
-    if (!found_cmd) {
-      printf("%s: not found\n", args[index]);
+    if (!found_builtin) {
+      // printf("%s: not found\n", args[index]);
+      // tokenize first
+      bool found_exe = false;
+      char **dirnames = parse_path();
+      for (int i = 0; dirnames[i]; i++) {
+        char *fullpath;
+        if (check_executables(dirnames[i], args[index], fullpath)) {
+          found_exe = true;
+          printf("%s is %s\n", args[index], fullpath);
+          free(fullpath);
+        }
+      }
+      printf("%s: not found", args[index]);
     }
     index++;
   }
+}
+
+char **parse_path() {
+  char *path_env = getenv("PATH");
+  char *path_copy = strdup(path_env);
+  if (!path_copy) {
+    return NULL;
+  }
+  // find out how many ':' in path
+  int count = 0;
+  for (char *tmp = path_copy; *tmp; tmp++) {
+    if (*tmp == ':') {
+      count++;
+    }
+  }
+  count += 2;
+  char **dirs = malloc(sizeof(char *)*count);
+  if (!dirs) {
+    free(path_copy);
+    return NULL;
+  }
+
+  char *token = strtok(path_env, ":")
+  int index = 0;
+  while (token != NULL) {
+    dirs[index++] = strdup(token);
+    token = strtok(NULL, ":");
+  }
+  dirs[index] = NULL;
+  free(path_copy);
+  return dirs;
+}
+
+int check_executables(char *dirname, char *filename, char *fullpath) {
+  // append file path
+  int size = strlen(dirname) + strlen(filename) + 2;
+  fullpath = malloc(size);
+  if (!fullpath) {
+    free(fullpath);
+    return 0;
+  }
+  snprintf(fullpath, sizeof(size), "%s/%s", dirname, filename);
+  struct stat st;
+  if (stat(dirname, &st) == 0) {
+    if (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 int invalid_input(char *line) {
@@ -72,7 +134,8 @@ int invalid_input(char *line) {
 char **build_array(char *line) {
   char **args = malloc(sizeof(char *)*MAX_ARGS);
 
-  if (args == NULL) {
+  if (!args) {
+    free(args);
     return NULL;
   }
 
