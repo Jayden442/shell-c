@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-static keep_looping = true;
+static bool keep_looping = true;
 
 int check_if_exit(char *line) {
   if (strncmp(line, "exit", 4) == 0) {
