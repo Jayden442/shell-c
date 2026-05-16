@@ -19,6 +19,7 @@ typedef struct {
 command_entry commands[] = {
   {"echo", echo_cmd},
   {"exit", exit_cmd},
+  {"type", type_cmd},
 };
 
 int exit_cmd(char **args) {
@@ -38,6 +39,21 @@ int echo_cmd(char **args) {
   }
   printf("\n");
   return 1;
+}
+
+int type_cmd(char **args) {
+  int index = 1;
+  int num_commands = sizeof(commands) / sizeof(commands[0]);
+  while (args[index] != NULL) {
+    for (int i = 0; i < num_commands; i++) {
+      if (strcmp(args[index], commands[i].name) == 0) {
+        printf("%s is a shell builtin\n", args[index]);
+      }
+      else {
+        printf("%s: not found\n");
+      }
+    }
+  }
 }
 
 int invalid_input(char *line) {
