@@ -9,6 +9,7 @@ static bool keep_looping = true;
 
 int exit_cmd(char **args);
 int echo_cmd(char **args);
+int type_cmd(char **args);
 
 typedef int (*command_func)(char **args);
 typedef struct {
