@@ -53,6 +53,7 @@ int type_cmd(char **args) {
       else {
         printf("%s: not found\n");
       }
+      index++;
     }
   }
 }
