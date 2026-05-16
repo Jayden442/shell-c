@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
   // TODO: Uncomment the code below to pass the first stage
   printf("$ ");
-  getUserInput()
+  getUserInput();
 
   return 0;
 }
