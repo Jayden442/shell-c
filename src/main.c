@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 int invalidInput(char *line) {
-  printf("%s: Command not found\n", line);
+  line[strcspn(line, "\n")] = '\0';
+  printf("%s: command not found\n", line);
   free(line);
   return 1;
 }
