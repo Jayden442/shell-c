@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int invalidInput(char *line) {
   line[strcspn(line, "\n")] = '\0';
