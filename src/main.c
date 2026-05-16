@@ -163,6 +163,18 @@ char **build_array(char *line) {
   return args;
 }
 
+int execute_external(char **args) {
+  pid_t pid = fork();
+  if (pid == 0) {
+    execvp(args[0], args);
+    exit(1);
+  }
+  else {
+    wait(NULL);
+  }
+  return 1;
+}
+
 int execute_command(char **args) {
   if (args[0] == NULL) {
     return 0;
@@ -191,15 +203,7 @@ int execute_command(char **args) {
           free(dirnames);
           // printf("%s is %s\n", args[index], fullpath);
           free(fullpath);
-          pid_t pid = fork();
-          if (pid == 0) {
-            execvp(args[0], args);
-            exit(1);
-          }
-          else {
-            wait(NULL);
-          }
-          printf("\n"); 
+          execute_external(args);
           break;
         }
       }
@@ -209,6 +213,8 @@ int execute_command(char **args) {
     }
   return 0;
 }
+
+
 
 int getUserInput() {
   size_t len = 0;
