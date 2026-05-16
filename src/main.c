@@ -191,7 +191,8 @@ int execute_command(char **args) {
           free(fullpath);
           if(execvp(args[0], args) == -1) {
             printf("failed to execute\n");
-          } 
+          }
+          print("\n"); 
           break;
         }
       }
