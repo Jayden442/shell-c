@@ -192,7 +192,7 @@ int execute_command(char **args) {
           if(execvp(args[0], args) == -1) {
             printf("failed to execute\n");
           }
-          print("\n"); 
+          printf("\n"); 
           break;
         }
       }
