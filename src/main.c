@@ -166,13 +166,38 @@ int execute_command(char **args) {
   }
 
   int num_commands = sizeof(commands) / sizeof(commands[0]);
-
+  bool found_builtin = false;
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
+      found_builtin = true;
       return commands[i].func(args);
     }
   }
-  invalid_input(args[0]);
+  if (!found_builtin) {
+      // printf("%s: not found\n", args[index]);
+      // tokenize first
+      bool found_exe = false;
+      char **dirnames = parse_path();
+      for (int i = 0; dirnames[i]; i++) {
+        char *fullpath;
+        if (check_executables(dirnames[i], args[index], &fullpath)) {
+          found_exe = true;
+          for (int i = 0; dirnames[i]; i++) {
+            free(dirnames[i]);
+          }
+          free(dirnames);
+          // printf("%s is %s\n", args[index], fullpath);
+          free(fullpath);
+          if(execvp(args[0], args) == -1) {
+            printf("failed to execute\n");
+          } 
+          break;
+        }
+      }
+      if (!found_exe) {
+        invalid_input(args[0]);
+      }
+    }
   return 0;
 }
 
