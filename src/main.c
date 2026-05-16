@@ -7,6 +7,9 @@
 
 static bool keep_looping = true;
 
+int exit_cmd(char **args);
+int echo_cmd(char **args);
+
 typedef int (*command_func)(char **args);
 typedef struct {
   const char *name;
@@ -23,7 +26,7 @@ int exit_cmd(char **args) {
   return 1;
 }
 
-void echo_cmd(char **args) {
+int echo_cmd(char **args) {
   int index = 1;
   while (args[index] != NULL) {
     printf("%s", args[index]);
@@ -33,6 +36,7 @@ void echo_cmd(char **args) {
     printf(" ");
   }
   printf("\n");
+  return 1;
 }
 
 int invalid_input(char *line) {
