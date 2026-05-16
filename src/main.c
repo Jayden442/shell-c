@@ -24,6 +24,55 @@ command_entry commands[] = {
   {"type", type_cmd},
 };
 
+char **parse_path() {
+  char *path_env = getenv("PATH");
+  char *path_copy = strdup(path_env);
+  if (!path_copy) {
+    return NULL;
+  }
+  // find out how many ':' in path
+  int count = 0;
+  for (char *tmp = path_copy; *tmp; tmp++) {
+    if (*tmp == ':') {
+      count++;
+    }
+  }
+  count += 2;
+  char **dirs = malloc(sizeof(char *)*count);
+  if (!dirs) {
+    free(path_copy);
+    return NULL;
+  }
+
+  char *token = strtok(path_copy, ":");
+  int index = 0;
+  while (token != NULL) {
+    dirs[index++] = strdup(token);
+    token = strtok(NULL, ":");
+  }
+  dirs[index] = NULL;
+  free(path_copy);
+  return dirs;
+}
+
+int check_executables(char *dirname, char *filename, char **fullpath) {
+  // append file path
+  int size = strlen(dirname) + strlen(filename) + 2;
+  (*fullpath) = malloc(size);
+  if (!(*fullpath)) {
+    free(*fullpath);
+    return 0;
+  }
+  snprintf(*fullpath, size, "%s/%s", dirname, filename);
+  struct stat st;
+  if (stat(*fullpath, &st) == 0) {
+    if (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 int exit_cmd(char **args) {
   keep_looping = false;
   return 1;
@@ -48,11 +97,11 @@ int type_cmd(char **args) {
   bool found_builtin;
   int num_commands = sizeof(commands) / sizeof(commands[0]);
   while (args[index] != NULL) {
-    found_cmd = false;
+    found_builtin = false;
     for (int i = 0; i < num_commands; i++) {
       if (strcmp(args[index], commands[i].name) == 0) {
         printf("%s is a shell builtin\n", args[index]);
-        found_cmd = true;
+        found_builtin = true;
         break;
       }
     }
@@ -63,66 +112,27 @@ int type_cmd(char **args) {
       char **dirnames = parse_path();
       for (int i = 0; dirnames[i]; i++) {
         char *fullpath;
-        if (check_executables(dirnames[i], args[index], fullpath)) {
+        if (check_executables(dirnames[i], args[index], &fullpath)) {
           found_exe = true;
           printf("%s is %s\n", args[index], fullpath);
           free(fullpath);
+          break;
         }
       }
-      printf("%s: not found", args[index]);
+      if (!found_exe) {
+        printf("%s: not found", args[index]);
+      }
+
+      for (int i = 0; dirnames[i]; i++) {
+        free(dirnames[i]);
+      }
+      free(dirnames);
     }
     index++;
   }
 }
 
-char **parse_path() {
-  char *path_env = getenv("PATH");
-  char *path_copy = strdup(path_env);
-  if (!path_copy) {
-    return NULL;
-  }
-  // find out how many ':' in path
-  int count = 0;
-  for (char *tmp = path_copy; *tmp; tmp++) {
-    if (*tmp == ':') {
-      count++;
-    }
-  }
-  count += 2;
-  char **dirs = malloc(sizeof(char *)*count);
-  if (!dirs) {
-    free(path_copy);
-    return NULL;
-  }
 
-  char *token = strtok(path_env, ":")
-  int index = 0;
-  while (token != NULL) {
-    dirs[index++] = strdup(token);
-    token = strtok(NULL, ":");
-  }
-  dirs[index] = NULL;
-  free(path_copy);
-  return dirs;
-}
-
-int check_executables(char *dirname, char *filename, char *fullpath) {
-  // append file path
-  int size = strlen(dirname) + strlen(filename) + 2;
-  fullpath = malloc(size);
-  if (!fullpath) {
-    free(fullpath);
-    return 0;
-  }
-  snprintf(fullpath, sizeof(size), "%s/%s", dirname, filename);
-  struct stat st;
-  if (stat(dirname, &st) == 0) {
-    if (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
-      return 1;
-    }
-  }
-  return 0;
-}
 
 int invalid_input(char *line) {
   line[strcspn(line, "\n")] = '\0';
