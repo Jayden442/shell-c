@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #define MAX_ARGS 32
@@ -189,8 +191,13 @@ int execute_command(char **args) {
           free(dirnames);
           // printf("%s is %s\n", args[index], fullpath);
           free(fullpath);
-          if(execvp(args[0], args) == -1) {
-            printf("failed to execute\n");
+          pid_t pid = fork();
+          if (pid == 0) {
+            execvp(args[0], args);
+            exit(1);
+          }
+          else {
+            wait(NULL);
           }
           printf("\n"); 
           break;
