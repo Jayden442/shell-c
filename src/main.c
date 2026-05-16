@@ -23,10 +23,10 @@ int getUserInput() {
 int main(int argc, char *argv[]) {
   // Flush after every printf
   setbuf(stdout, NULL);
-
-  // TODO: Uncomment the code below to pass the first stage
-  printf("$ ");
-  getUserInput();
+  while (1) {
+    printf("$ ");
+    getUserInput();
+  }
 
   return 0;
 }
