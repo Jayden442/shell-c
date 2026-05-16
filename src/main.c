@@ -120,7 +120,7 @@ int type_cmd(char **args) {
         }
       }
       if (!found_exe) {
-        printf("%s: not found", args[index]);
+        printf("%s: not found\n", args[index]);
       }
 
       for (int i = 0; dirnames[i]; i++) {
