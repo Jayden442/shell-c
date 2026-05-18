@@ -28,6 +28,7 @@ command_entry commands[] = {
   {"exit", exit_cmd},
   {"type", type_cmd},
   {"pwd", pwd_cmd},
+  {"cd", cd_cmd},
 };
 
 char **parse_path() {
