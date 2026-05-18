@@ -152,7 +152,7 @@ int pwd_cmd(char **args) {
 int cd_cmd(char **args) {
   char cwd[1024];
   if (chdir(args[1]) != 0) {
-    printf("cd: %s: No such file or directory\n");
+    printf("cd: %s: No such file or directory\n", args[1]);
     return 0;
   }
   return 1;
