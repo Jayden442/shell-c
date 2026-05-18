@@ -15,6 +15,7 @@ int exit_cmd(char **args);
 int echo_cmd(char **args);
 int type_cmd(char **args);
 int pwd_cmd(char **args);
+int cd_cmd(char **args);
 
 typedef int (*command_func)(char **args);
 typedef struct {
@@ -146,7 +147,15 @@ int pwd_cmd(char **args) {
   else {
     printf("Failed to get working directory\n");
   }
-  
+}
+
+int cd_cmd(char **args) {
+  char cwd[1024];
+  if (chdir(args[1]) != 0) {
+    printf("cd: %s: No such file or directory");
+    return 0;
+  }
+  return 1;
 }
 
 
