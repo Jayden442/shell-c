@@ -140,11 +140,11 @@ int type_cmd(char **args) {
 int pwd_cmd(char **args) {
   char cwd[1024];
   if (getcwd(cwd, sizeof(cwd)) != NULL) {
-    printf("%s", cwd);
+    printf("%s\n", cwd);
     return 1;
   }
   else {
-    printf("Failed to get working directory");
+    printf("Failed to get working directory\n");
   }
   
 }
