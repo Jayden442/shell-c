@@ -11,6 +11,8 @@
 
 static bool keep_looping = true;
 
+int get_num_args(char **args);
+
 int exit_cmd(char **args);
 int echo_cmd(char **args);
 int type_cmd(char **args);
@@ -151,15 +153,43 @@ int pwd_cmd(char **args) {
 }
 
 int cd_cmd(char **args) {
-  char cwd[1024];
-  if (chdir(args[1]) != 0) {
-    printf("cd: %s: No such file or directory\n", args[1]);
+  int num_args = get_num_args(args);
+  if (num_args > 2) {
+    printf("cd: Too many arguments\n");
+    return 0;
+  }
+  if (num_args == 1) {
+    return 1;
+  }
+  int arg_len = strlen(args[1]);
+  char *homedir = getenv("HOME");
+  int home_len = strlen(homedir);
+  char cwd[arg_len + home_len];
+  // tilde expansion
+  if (args[1][0] == '~') {
+    strncpy(cwd, homedir, home_len);
+    strncpy(cwd+home_len, args[1]+1, arg_len-1);
+  }
+  else {
+    strncpy(cwd, args[1], arg_len);
+  }
+  if (chdir(cwd) != 0) {
+    printf("cd: %s: No such file or directory\n", cwd);
     return 0;
   }
   return 1;
 }
 
-
+int get_num_args(char **args) {
+  int index = 0;
+  while (args[index] != NULL) {
+    if (args[index+1] == NULL) {
+      break;
+    }
+    index++;
+  }
+  return index+1;
+}
 
 int invalid_input(char *line) {
   line[strcspn(line, "\n")] = '\0';
