@@ -14,6 +14,7 @@ static bool keep_looping = true;
 int exit_cmd(char **args);
 int echo_cmd(char **args);
 int type_cmd(char **args);
+int pwd_cmd(char **args);
 
 typedef int (*command_func)(char **args);
 typedef struct {
@@ -25,6 +26,7 @@ command_entry commands[] = {
   {"echo", echo_cmd},
   {"exit", exit_cmd},
   {"type", type_cmd},
+  {"pwd", pwd_cmd},
 };
 
 char **parse_path() {
@@ -133,6 +135,18 @@ int type_cmd(char **args) {
     }
     index++;
   }
+}
+
+int pwd_cmd(char **args) {
+  char cwd[1024];
+  if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    printf("%s", cwd);
+    return 1;
+  }
+  else {
+    printf("Failed to get working directory");
+  }
+  
 }
 
 
