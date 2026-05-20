@@ -171,7 +171,7 @@ int cd_cmd(char **args) {
     strncpy(cwd+home_len-1, args[1]+1, arg_len-1);
   }
   else {
-    strncpy(cwd, args[1], arg_len);
+    strncpy(cwd, args[1], arg_len-1);
   }
   
   if (chdir(cwd) != 0) {
