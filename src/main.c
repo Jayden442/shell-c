@@ -168,7 +168,7 @@ int cd_cmd(char **args) {
   // tilde expansion
   if (args[1][0] == '~') {
     strncpy(cwd, homedir, home_len);
-    strncpy(cwd+home_len, args[1]+1, arg_len-1);
+    strncpy(cwd+home_len-1, args[1]+1, arg_len-1);
   }
   else {
     strncpy(cwd, args[1], arg_len);
