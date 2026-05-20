@@ -162,7 +162,7 @@ int cd_cmd(char **args) {
     return 1;
   }
   int arg_len = strlen(args[1]);
-  printf("%s", args[1]);
+
   char *homedir = getenv("HOME");
   int home_len = strlen(homedir);
   char cwd[arg_len + home_len];
