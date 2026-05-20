@@ -172,7 +172,6 @@ int cd_cmd(char **args) {
   }
   else {
     strncpy(cwd, args[1], arg_len);
-    printf("cwd: %s\n", cwd);
   }
   
   if (chdir(cwd) != 0) {
