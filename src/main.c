@@ -18,6 +18,7 @@ int echo_cmd(char **args);
 int type_cmd(char **args);
 int pwd_cmd(char **args);
 int cd_cmd(char **args);
+void quote_pairs(int *low, int *high, int *start, char **text)
 
 typedef int (*command_func)(char **args);
 typedef struct {
@@ -243,7 +244,7 @@ int execute_command(char **args) {
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
       found_builtin = true;
-      return commands[i].func(args);
+      //return commands[i].func(args);
     }
   }
   if (!found_builtin) {
@@ -272,7 +273,52 @@ int execute_command(char **args) {
   return 0;
 }
 
+int parse_args(char **args) {
+  index = 0;
+  while (args[index] != NULL) {
+    char *newStr = malloc(2*strlen(args[index]) + 1); // gotta clean up
 
+    int low = 0;
+    int high = 0;
+    int start = 0;
+    
+
+    newStrExtra = 0;
+    for (int i = 0; i < strlen(args[index]); i++) {
+      if (i == high+1) {
+        quote_pairs(&low, &high, &start, args[index]);
+      }
+      newStr[i+newStrExtra];
+      if (args[index][i] == 92 && i <= high && i >= low) {
+        newStrExtra++;
+        newStr[i+newStrExtra]; // ignore escape characters
+      }
+    }
+    free(args[index]);
+    args[index] = newStr;
+  }
+}
+
+// returns the index which it ended
+void quote_pairs(int *low, int *high, int *start, char *text) {
+  *low = -2;
+  *high = -2;
+  for (int i = *start; i < strlen(text); i++) {
+    if (text[i] == 39) {
+      if (*low == -2) {
+        *low = i;
+      }
+      else if (high == -2) {
+        *high = i;
+      }
+      else {
+        *start = i;
+        return;
+      }
+    }
+  }
+  *start = strlen(text);
+}
 
 int getUserInput() {
   size_t len = 0;
@@ -282,7 +328,12 @@ int getUserInput() {
   }
   else {
     char **args = build_array(line);
+    parse_args(args);
     execute_command(args);
+    int index = 0;
+    while (args[index] != NULL) {
+      free(args[index]);
+    }
     free(args);
   }
   return 1;
