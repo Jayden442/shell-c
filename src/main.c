@@ -292,7 +292,8 @@ int parse_args(char **args) {
         newStr[i+newStrExtra]; // ignore escape characters
       }
     }
-    args[index] = newStr;
+    strncpy(args[index], newStr, strlen(newStr));
+    args[index][strlen(newStr)] = '\0';
     index++;
   }
 }
