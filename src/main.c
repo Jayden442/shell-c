@@ -278,8 +278,8 @@ int parse_args(char **args) {
   while (args[index] != NULL) {
     char *newStr = malloc(2*strlen(args[index]) + 1); // gotta clean up
 
-    int low = 0;
-    int high = 0;
+    int low = -1;
+    int high = -1;
     int start = 0;
     int newStrExtra = 0;
     for (int i = 0; i < strlen(args[index]); i++) {
