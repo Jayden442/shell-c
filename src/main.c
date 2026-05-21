@@ -292,7 +292,6 @@ int parse_args(char **args) {
         newStr[i+newStrExtra]; // ignore escape characters
       }
     }
-    free(args[index]);
     args[index] = newStr;
     index++;
   }
