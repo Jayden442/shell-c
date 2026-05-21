@@ -286,7 +286,7 @@ int parse_args(char **args) {
       if (i == high+1) {
         quote_pairs(&low, &high, &start, args[index]);
       }
-      newStr[i+newStrExtra];
+      newStr[i+newStrExtra] = args[index][i];
       if (args[index][i] == 92 && i <= high && i >= low) {
         newStrExtra++;
         newStr[i+newStrExtra]; // ignore escape characters
