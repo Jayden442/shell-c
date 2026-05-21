@@ -18,7 +18,7 @@ int echo_cmd(char **args);
 int type_cmd(char **args);
 int pwd_cmd(char **args);
 int cd_cmd(char **args);
-void quote_pairs(int *low, int *high, int *start, char **text)
+void quote_pairs(int *low, int *high, int *start, char **text);
 
 typedef int (*command_func)(char **args);
 typedef struct {
