@@ -165,16 +165,16 @@ int cd_cmd(char **args) {
 
   char *homedir = getenv("HOME");
   int home_len = strlen(homedir);
-  char cwd[arg_len + home_len];
+  char cwd[arg_len + home_len+1];
   // tilde expansion
   if (args[1][0] == '~') {
     strncpy(cwd, homedir, home_len);
     strncpy(cwd+home_len-1, args[1]+1, arg_len-1);
-    cwd[arg_len+home_len-1] = '\0';
+    cwd[arg_len+home_len] = '\0';
   }
   else {
     strncpy(cwd, args[1], arg_len);
-    cwd[arg_len-1] = '\0';
+    cwd[arg_len] = '\0';
   }
   
   if (chdir(cwd) != 0) {
