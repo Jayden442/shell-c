@@ -274,7 +274,7 @@ int execute_command(char **args) {
 }
 
 int parse_args(char **args) {
-  index = 0;
+  int index = 0;
   while (args[index] != NULL) {
     char *newStr = malloc(2*strlen(args[index]) + 1); // gotta clean up
 
@@ -296,6 +296,7 @@ int parse_args(char **args) {
     }
     free(args[index]);
     args[index] = newStr;
+    index++;
   }
 }
 
