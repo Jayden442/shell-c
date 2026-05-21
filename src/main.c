@@ -308,7 +308,7 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
       if (*low == -2) {
         *low = i;
       }
-      else if (high == -2) {
+      else if (*high == -2) {
         *high = i;
       }
       else {
