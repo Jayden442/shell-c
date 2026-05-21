@@ -170,9 +170,11 @@ int cd_cmd(char **args) {
   if (args[1][0] == '~') {
     strncpy(cwd, homedir, home_len);
     strncpy(cwd+home_len-1, args[1]+1, arg_len-1);
+    cwd[arg_len+home_len-1] = \0;
   }
   else {
     strncpy(cwd, args[1], arg_len);
+    cwd[arg_len-1] = \0;
   }
   
   if (chdir(cwd) != 0) {
