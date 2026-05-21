@@ -291,6 +291,7 @@ int parse_args(char **args) {
         newStrExtra++;
         newStr[i+newStrExtra]; // ignore escape characters
       }
+      printf("New String: %s\n", newStr);
     }
     strncpy(args[index], newStr, strlen(newStr));
     args[index][strlen(newStr)] = '\0';
