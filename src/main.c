@@ -281,9 +281,7 @@ int parse_args(char **args) {
     int low = 0;
     int high = 0;
     int start = 0;
-    
-
-    newStrExtra = 0;
+    int newStrExtra = 0;
     for (int i = 0; i < strlen(args[index]); i++) {
       if (i == high+1) {
         quote_pairs(&low, &high, &start, args[index]);
