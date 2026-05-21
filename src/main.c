@@ -330,9 +330,6 @@ int getUserInput() {
     parse_args(args);
     execute_command(args);
     int index = 0;
-    while (args[index] != NULL) {
-      free(args[index]);
-    }
     free(args);
   }
   return 1;
