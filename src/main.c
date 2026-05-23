@@ -214,7 +214,7 @@ char **build_array(char *line) {
     int arg_count = 0;
 
     int quote_start, quote_end, next_quote;
-    get_quote_indices(
+    quote_pairs(
         &quote_start,
         &quote_end,
         &next_quote,
