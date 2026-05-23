@@ -262,6 +262,7 @@ char **build_array(char *line) {
                 token[j] = line[i+1];
                 j++;
                 i = i + 2;
+                continue;
               }
             }
 
