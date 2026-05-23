@@ -344,13 +344,13 @@ int parse_args(char **args) {
       }
       if (i == low || i == high) {
         newStrExtra--;
-        break;
+        continue;
       }
       newStr[i+newStrExtra] = args[index][i];
       
       if (args[index][i] == 92 && i <= high && i >= low) {
         newStrExtra++;
-        newStr[i+newStrExtra]; // ignore escape characters
+        newStr[i+newStrExtra] = args[index][i]; // ignore escape characters
       }
     }
     strncpy(args[index], newStr, strlen(newStr));
