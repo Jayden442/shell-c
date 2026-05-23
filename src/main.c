@@ -376,6 +376,7 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
       }
       else {
         *start = i;
+        printf("Start: %d ", *start);
         return;
       }
     }
