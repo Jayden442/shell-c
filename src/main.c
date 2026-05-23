@@ -346,6 +346,10 @@ int parse_args(char **args) {
         newStrExtra--;
         continue;
       }
+      if (args[index][i] == '\n') {
+        args[index][strlen(newStr)] = '\0';
+        break;
+      }
       newStr[i+newStrExtra] = args[index][i];
       
       if (args[index][i] == 92 && i <= high && i >= low) {
