@@ -364,6 +364,7 @@ int parse_args(char **args) {
 void quote_pairs(int *low, int *high, int *start, char *text) {
   *low = -2;
   *high = -2;
+  printf("Start: %d ", *start);
   for (int i = *start; i < strlen(text); i++) {
     if (text[i] == 39) {
       if (*low == -2) {
@@ -376,7 +377,7 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
       }
       else {
         *start = i;
-        printf("Start: %d ", *start);
+        
         return;
       }
     }
