@@ -365,6 +365,7 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
   *low = -2;
   *high = -2;
   printf("Start: %d ", *start);
+  printf("Text: %s, length: %d ", text, strlen(text);)
   for (int i = *start; i < strlen(text); i++) {
     if (text[i] == 39) {
       if (*low == -2) {
