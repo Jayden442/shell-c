@@ -403,7 +403,7 @@ int getUserInput() {
   }
   else {
     char **args = build_array(line);
-    printargs(args);
+    //printargs(args);
     parse_args(args);
     
     execute_command(args);
