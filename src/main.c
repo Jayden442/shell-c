@@ -266,6 +266,19 @@ char **build_array(char *line) {
               }
             }
 
+            // escape double quotes
+            if (in_double_quotes && !in_quotes && line[i] == '\\') {
+              if (line[i+1] == '\"' || line[i+1] == '\\') {
+                if (line[i+1] == '\0') {
+                  break;
+                }
+                token[j] = line[i+1];
+                j++;
+                i = i + 2;
+                continue;
+              }
+            }
+
 
             /* End token only on whitespace outside quotes */
             if ((!in_quotes && !in_double_quotes) && isspace(line[i])) {
