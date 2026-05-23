@@ -393,7 +393,7 @@ int getUserInput() {
   else {
     char **args = build_array(line);
     parse_args(args);
-    printargs(args);
+    //printargs(args);
     execute_command(args);
     int index = 0;
     free(args);
