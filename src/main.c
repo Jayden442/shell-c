@@ -350,7 +350,7 @@ int parse_args(char **args) {
     }
     strncpy(args[index], newStr, strlen(newStr));
     args[index][strlen(newStr)] = '\0';
-    printf("Index %d: %s ", index, args[index]);
+    // printf("Index %d: %s ", index, args[index]);
     index++;
   }
 }
