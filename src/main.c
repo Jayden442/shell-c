@@ -361,24 +361,24 @@ int parse_args(char **args) {
 }
 
 // returns the index which it ended
-void quote_pairs(int *low, int *high, int *next, char *text) {
+void quote_pairs(int *low, int *high, int *start, char *text) {
   *low = -2;
   *high = -2;
   for (int i = 0; i < strlen(text); i++) {
     if (text[i] == 39) {
       if (*low == -2) {
-        *low = i;
+        *low = i+(*start);
       }
       else if (*high == -2) {
-        *high = i;
+        *high = i+(*start);
       }
       else {
-        *next = i;
+        *start = i;
         return;
       }
     }
   }
-  *next = -1;
+  *start = -1;
 }
 
 void printargs(char **args) {
