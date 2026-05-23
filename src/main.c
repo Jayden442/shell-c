@@ -253,6 +253,18 @@ char **build_array(char *line) {
                 continue; /* don't copy quote chars */
             }
 
+            // escaping outside quotes
+            if (!in_quotes && !in_double_quotes) {
+              if (line[i] == '\\') {
+                if (line[i+1] == '\0') {
+                  break;
+                }
+                token[j] = line[i+1];
+                j++;
+                i = i + 2;
+              }
+            }
+
             /* End token only on whitespace outside quotes */
             if ((!in_quotes && !in_double_quotes) && isspace(line[i])) {
                 break;
