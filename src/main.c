@@ -340,7 +340,7 @@ int parse_args(char **args) {
     int newStrExtra = 0;
     for (int i = 0; i < strlen(args[index]); i++) {
       if (i == high+1) {
-        quote_pairs(&low, &high, &start, args[index]+start);
+        quote_pairs(&low, &high, &start, args[index]);
       }
       if (i == low || i == high) {
         newStrExtra--;
@@ -364,14 +364,14 @@ int parse_args(char **args) {
 void quote_pairs(int *low, int *high, int *start, char *text) {
   *low = -2;
   *high = -2;
-  for (int i = 0; i < strlen(text); i++) {
+  for (int i = *start; i < strlen(text); i++) {
     if (text[i] == 39) {
       if (*low == -2) {
-        *low = i+(*start);
+        *low = i;
         printf("Low: %d ", *low);
       }
       else if (*high == -2) {
-        *high = i+(*start);
+        *high = i;
         printf("High: %d ", *high);
       }
       else {
