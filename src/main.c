@@ -242,7 +242,7 @@ char **build_array(char *line) {
         while (line[i] != '\0') {
 
             /* Toggle quote state */
-            if (line[i] == '\"') {
+            if (!in_quotes && line[i] == '\"') {
                 in_double_quotes = !in_double_quotes;
                 i++;
                 continue; /* don't copy quote chars */
