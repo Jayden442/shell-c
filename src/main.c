@@ -245,13 +245,16 @@ char **build_array(char *line) {
             ((isspace(c) && !in_quotes) ||
              c == '\0')) {
 
-            if (c != '\0')
+            if (c != '\0') {
                 line[i] = '\0';
+                printf("character was empty ");
+            }
 
             args[arg_count++] = token_start;
 
-            if (arg_count >= MAX_ARGS - 1)
+            if (arg_count >= MAX_ARGS - 1) {
                 break;
+            }
 
             token_start = NULL;
         }
