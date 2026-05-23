@@ -254,7 +254,7 @@ char **build_array(char *line) {
             }
 
             /* End token only on whitespace outside quotes */
-            if ((!in_quotes || !in_double_quotes) && isspace(line[i])) {
+            if ((!in_quotes && !in_double_quotes) && isspace(line[i])) {
                 break;
             }
 
