@@ -372,7 +372,7 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
   *start = strlen(text);
 }
 
-printargs(char **args) {
+void printargs(char **args) {
   int index = 0;
   while (args[index]) {
     printf("%s ", args[index]);
@@ -389,6 +389,7 @@ int getUserInput() {
   else {
     char **args = build_array(line);
     parse_args(args);
+    printargs(args);
     execute_command(args);
     int index = 0;
     free(args);
