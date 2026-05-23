@@ -225,7 +225,7 @@ char **build_array(char *line) {
 
     for (int i = 0;; i++) {
         int in_quotes =
-            (quote_start != -1 &&
+            (quote_start != -2 &&
              i >= quote_start &&
              i <= quote_end);
 
@@ -369,7 +369,7 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
       }
     }
   }
-  *start = strlen(text);
+  *start = -1;
 }
 
 void printargs(char **args) {
