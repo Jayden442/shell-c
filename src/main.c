@@ -228,7 +228,7 @@ char **build_array(char *line) {
             (quote_start != -2 &&
              i >= quote_start &&
              i <= quote_end);
-        printf("Quote Start: %d, Quote End: %d, Next Quote: %d", quote_start, quote_end, next_quote);
+        //printf("Quote Start: %d, Quote End: %d, Next Quote: %d", quote_start, quote_end, next_quote);
 
         char c = line[i];
 
