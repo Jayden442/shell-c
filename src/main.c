@@ -375,7 +375,7 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
 void printargs(char **args) {
   int index = 0;
   while (args[index]) {
-    printf("%s ", args[index]);
+    printf("index %d, %s ", index, args[index]);
     index++;
   }
   printf("\n");
