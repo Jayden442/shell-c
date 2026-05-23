@@ -300,7 +300,7 @@ int execute_command(char **args) {
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
       found_builtin = true;
-      //return commands[i].func(args);
+      return commands[i].func(args);
     }
   }
   if (!found_builtin) {
