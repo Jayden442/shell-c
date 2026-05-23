@@ -382,6 +382,9 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
       }
     }
   }
+  if (*high == -2) {
+    *low = -2;
+  }
   *start = -1;
 }
 
