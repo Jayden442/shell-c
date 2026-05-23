@@ -372,6 +372,14 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
   *start = strlen(text);
 }
 
+printargs(char **args) {
+  int index = 0;
+  while (args[index]) {
+    printf("%s ", args[index]);
+  }
+  printf("\n");
+}
+
 int getUserInput() {
   size_t len = 0;
   char *line = NULL;
