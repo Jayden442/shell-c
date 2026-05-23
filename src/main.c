@@ -228,6 +228,7 @@ char **build_array(char *line) {
             (quote_start != -2 &&
              i >= quote_start &&
              i <= quote_end);
+        printf("Quote Start: %d, Quote End: %d, Next Quote: %d", quote_start, quote_end, next_quote);
 
         char c = line[i];
 
@@ -247,7 +248,6 @@ char **build_array(char *line) {
 
             if (c != '\0') {
                 line[i] = '\0';
-                printf("character was empty ");
             }
 
             args[arg_count++] = token_start;
