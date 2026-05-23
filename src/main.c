@@ -204,22 +204,74 @@ int invalid_input(char *line) {
 }
 
 char **build_array(char *line) {
-  char **args = malloc(sizeof(char *)*MAX_ARGS);
+    char **args = malloc(sizeof(char *) * MAX_ARGS);
 
-  if (!args) {
-    free(args);
-    return NULL;
-  }
+    if (!args) {
+        return NULL;
+    }
 
-  char *token = strtok(line, " \t\n");
-  int index = 0;
-  while (token != NULL && index < MAX_ARGS - 1) {
-    args[index++] = token;
-    token = strtok(NULL, " \t\n");
-  }
+    int arg_count = 0;
 
-  args[index] = NULL;
-  return args;
+    int quote_start, quote_end, next_quote;
+    get_quote_indices(
+        &quote_start,
+        &quote_end,
+        &next_quote,
+        line
+    );
+
+    char *token_start = NULL;
+
+    for (int i = 0;; i++) {
+        int in_quotes =
+            (quote_start != -1 &&
+             i >= quote_start &&
+             i <= quote_end);
+
+        char c = line[i];
+
+        /* Start of a token */
+        if (token_start == NULL &&
+            c != '\0' &&
+            !(isspace(c) && !in_quotes)) {
+
+            token_start = &line[i];
+        }
+
+        /* End of token:
+           whitespace outside quotes or string end */
+        if (token_start &&
+            ((isspace(c) && !in_quotes) ||
+             c == '\0')) {
+
+            if (c != '\0')
+                line[i] = '\0';
+
+            args[arg_count++] = token_start;
+
+            if (arg_count >= MAX_ARGS - 1)
+                break;
+
+            token_start = NULL;
+        }
+
+        /* Move to next quote pair if needed */
+        if (i == quote_end && next_quote != -1) {
+            quote_pairs(
+                &quote_start,
+                &quote_end,
+                &next_quote,
+                line
+            );
+        }
+
+        if (c == '\0')
+            break;
+    }
+
+    args[arg_count] = NULL;
+
+    return args;
 }
 
 int execute_external(char **args) {
