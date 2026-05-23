@@ -205,72 +205,63 @@ int invalid_input(char *line) {
 }
 
 char **build_array(char *line) {
-    char **args = malloc(sizeof(char *) * MAX_ARGS);
-
+    char **args = malloc(MAX_ARGS * sizeof(char *));
     if (!args) {
         return NULL;
     }
 
     int arg_count = 0;
+    int in_quotes = 0;
+    int i = 0;
 
-    int quote_start, quote_end, next_quote;
-    quote_pairs(
-        &quote_start,
-        &quote_end,
-        &next_quote,
-        line
-    );
+    while (line[i] != '\0') {
 
-    char *token_start = NULL;
-
-    for (int i = 0;; i++) {
-        int in_quotes =
-            (quote_start != -2 &&
-             i >= quote_start &&
-             i <= quote_end);
-        //printf("Quote Start: %d, Quote End: %d, Next Quote: %d", quote_start, quote_end, next_quote);
-
-        char c = line[i];
-
-        /* Start of a token */
-        if (token_start == NULL &&
-            c != '\0' &&
-            !(isspace(c) && !in_quotes)) {
-
-            token_start = &line[i];
+        /* Skip whitespace between arguments */
+        while (isspace(line[i])) {
+            i++;
         }
 
-        /* End of token:
-           whitespace outside quotes or string end */
-        if (token_start &&
-            ((isspace(c) && !in_quotes) ||
-             c == '\0')) {
+        if (line[i] == '\0') {
+            break;
+        }
 
-            if (c != '\0') {
-                line[i] = '\0';
+        /* Worst-case token size = remaining string */
+        char *token = malloc(strlen(&line[i]) + 1);
+
+        if (!token) {
+            for (int j = 0; j < arg_count; j++) {
+                free(args[j]);
+            }
+            free(args);
+            return NULL;
+        }
+
+        int j = 0;
+
+        while (line[i] != '\0') {
+
+            /* Toggle quote state */
+            if (line[i] == '\'') {
+                in_quotes = !in_quotes;
+                i++;
+                continue; /* don't copy quote chars */
             }
 
-            args[arg_count++] = token_start;
-
-            if (arg_count >= MAX_ARGS - 1) {
+            /* End token only on whitespace outside quotes */
+            if (!in_quotes && isspace(line[i])) {
                 break;
             }
 
-            token_start = NULL;
+            token[j++] = line[i++];
         }
 
-        /* Move to next quote pair if needed */
-        if (i == quote_end && next_quote != -1) {
-            quote_pairs(
-                &quote_start,
-                &quote_end,
-                &next_quote,
-                line
-            );
-        }
+        token[j] = '\0';
 
-        if (c == '\0')
+        args[arg_count++] = token;
+
+        if (arg_count >= MAX_ARGS - 1) {
             break;
+        }
     }
 
     args[arg_count] = NULL;
@@ -329,63 +320,6 @@ int execute_command(char **args) {
   return 0;
 }
 
-int parse_args(char **args) {
-  int index = 0;
-  while (args[index] != NULL) {
-    char *newStr = malloc(2*strlen(args[index]) + 1); // gotta clean up
-
-    int low = -1;
-    int high = -1;
-    int start = 0;
-    int newStrExtra = 0;
-    for (int i = 0; i < strlen(args[index]); i++) {
-      if (i == high+1) {
-        quote_pairs(&low, &high, &start, args[index]);
-      }
-      if (i == low || i == high) {
-        newStrExtra--;
-        continue;
-      }
-      newStr[i+newStrExtra] = args[index][i];
-      
-      if (args[index][i] == 92 && i <= high && i >= low) {
-        newStrExtra++;
-        newStr[i+newStrExtra] = args[index][i]; // ignore escape characters
-      }
-    }
-    strncpy(args[index], newStr, strlen(newStr));
-    args[index][strlen(newStr)] = '\0';
-    // printf("Index %d: %s ", index, args[index]);
-    index++;
-  }
-}
-
-// returns the index which it ended
-void quote_pairs(int *low, int *high, int *start, char *text) {
-  *low = -2;
-  *high = -2;
-  //printf("Start: %d ", *start);
-  //printf("Text: %s, length: %d ", text, strlen(text));
-  for (int i = *start; i < strlen(text); i++) {
-    if (text[i] == 39) {
-      if (*low == -2) {
-        *low = i;
-        //printf("Low: %d ", *low);
-      }
-      else if (*high == -2) {
-        *high = i;
-        //printf("High: %d ", *high);
-      }
-      else {
-        *start = i;
-        return;
-      }
-    }
-  }
-  
-  *start = -1;
-}
-
 void printargs(char **args) {
   int index = 0;
   while (args[index]) {
@@ -403,8 +337,6 @@ int getUserInput() {
   }
   else {
     char **args = build_array(line);
-    //printargs(args);
-    parse_args(args);
     
     execute_command(args);
     int index = 0;
