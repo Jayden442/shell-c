@@ -368,9 +368,11 @@ void quote_pairs(int *low, int *high, int *start, char *text) {
     if (text[i] == 39) {
       if (*low == -2) {
         *low = i+(*start);
+        print("Low: %d ", *low);
       }
       else if (*high == -2) {
         *high = i+(*start);
+        print("High: %d ", *high);
       }
       else {
         *start = i;
