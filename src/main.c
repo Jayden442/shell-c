@@ -212,6 +212,7 @@ char **build_array(char *line) {
 
     int arg_count = 0;
     int in_quotes = 0;
+    int in_double_quotes = 0;
     int i = 0;
 
     while (line[i] != '\0') {
@@ -241,14 +242,19 @@ char **build_array(char *line) {
         while (line[i] != '\0') {
 
             /* Toggle quote state */
-            if (line[i] == '\'') {
+            if (line[i] == '\"') {
+                in_double_quotes = !in_double_quotes;
+                i++;
+                continue; /* don't copy quote chars */
+            }
+            else if (!in_double_quotes && line[i] == '\'') {
                 in_quotes = !in_quotes;
                 i++;
                 continue; /* don't copy quote chars */
             }
 
             /* End token only on whitespace outside quotes */
-            if (!in_quotes && isspace(line[i])) {
+            if ((!in_quotes || !in_double_quotes) && isspace(line[i])) {
                 break;
             }
 
