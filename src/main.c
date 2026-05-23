@@ -376,6 +376,7 @@ void printargs(char **args) {
   int index = 0;
   while (args[index]) {
     printf("%s ", args[index]);
+    index++;
   }
   printf("\n");
 }
