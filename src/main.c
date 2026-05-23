@@ -340,8 +340,7 @@ int parse_args(char **args) {
     int newStrExtra = 0;
     for (int i = 0; i < strlen(args[index]); i++) {
       if (i == high+1) {
-        start = high+1;
-        quote_pairs(&low, &high, &start, args[start]);
+        quote_pairs(&low, &high, &start, args[index]+start);
       }
       if (i == low || i == high) {
         newStrExtra--;
