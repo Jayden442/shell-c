@@ -398,6 +398,7 @@ int execute_command(char **args) {
     if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
       outfile = args[index+1];
       redirect_stdout = 1;
+      printf("outfile: %s redirect: %d\n", outfile, redirect_stdout);
       break;
     }
     index++;
