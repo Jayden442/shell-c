@@ -199,9 +199,14 @@ int get_num_args(char **args) {
 }
 
 int invalid_input(char *line) {
-  line[strcspn(line, "\n")] = '\0';
-  printf("%s: command not found\n", line);
-  free(line);
+  char *copy = strdup(line);
+  if (!copy) {
+    printf("command not found\n");
+    return 1;
+  }
+  copy[strcspn(copy, "\n")] = '\0';
+  printf("%s: command not found\n", copy);
+  free(copy);
   return 1;
 }
 
@@ -389,11 +394,8 @@ int execute_builtin(char **args, char *outfile, int redirect_stdout) {
 }
 
 int remove_arg(char **args, int index) {
-  int idx = index;
-  args[index] = NULL;
-  idx++;
-  while (args[idx] || args[idx-1]) {
-    args[idx - 1] = args[idx];
+  for (int i = index; args[i] != NULL; i++) {
+    args[i] = args[i + 1];
   }
   return 1;
 }
@@ -454,14 +456,19 @@ int getUserInput() {
   size_t len = 0;
   char *line = NULL;
   if (getline(&line, &len, stdin) < 0) {
-    invalid_input("");
+    free(line);
+    return 0;
   }
   else {
     char **args = build_array(line);
-    
-    execute_command(args);
-    int index = 0;
-    free(args);
+    if (args) {
+      execute_command(args);
+      for (int i = 0; args[i] != NULL; i++) {
+        free(args[i]);
+      }
+      free(args);
+    }
+    free(line);
   }
   return 1;
 }
