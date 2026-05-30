@@ -327,7 +327,7 @@ int builtin_redirection(char **args, char *outfile) {
     }
     fd = open( // open file
       outfile,
-      O_WRONLY | O_CREATE | O_TRUNC,
+      O_WRONLY | O_CREAT | O_TRUNC,
       0644
     );
 
