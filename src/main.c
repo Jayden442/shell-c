@@ -314,20 +314,72 @@ int execute_external(char **args) {
   return 1;
 }
 
-int execute_command(char **args) {
-  if (args[0] == NULL) {
-    return 0;
-  }
+int builtin_redirection(char **args, char *outfile) {
+  int saved_stdout = -1;
+  int fd = -1;
 
+  if (outfile != NULL) {
+    saved_stdout = dup(STDOUT_FILENO); // duplicate stdout
+    if (saved_stdout == -1) {
+      printf("Error dup");
+      return -1;
+    }
+    fd = open( // open file
+      outfile,
+      O_WRONLY | O_CREATE | O_TRUNC,
+      0644
+    );
+
+    if (fd == -1) {
+      printf("Error open");
+      close(saved_stdout);
+      return -1;
+    }
+
+    if (dup2(fd, STDOUT_FILENO) == -1) { // stdout now goes to the file
+      printf("Error dup2");
+      close(fd);
+      return -1;
+    }
+  }
+  return saved_stdout;
+}
+
+int restore_fds(char *outfile, int saved_stdout) {
+  if (outfile != NULL) {
+    if (dup2(saved_stdout, STDOUT_FILENO) == -1) {
+      printf("Error dup2");
+    }
+    close(saved_stdout);
+  }
+  return 1;
+}
+
+int execute_builtin(char **args) {
   int num_commands = sizeof(commands) / sizeof(commands[0]);
   bool found_builtin = false;
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
-      found_builtin = true;
-      return commands[i].func(args);
+      if (args[i+1] != NULL && args[i+2] != NULL) {
+        if (strcmp(">", args[i+1], 0) || strcmp("1>", args[i+1], 0)) {
+        int saved_stdout = builtin_redirection(args, args[i+2]);
+        commands[i].func(args);
+        restore_fds(args[i+2], saved_stdout);
+        return 1;
+        } 
+      }
+      commands[i].func(args);
+      return 1;
     }
   }
-  if (!found_builtin) {
+  return -1;
+}
+
+int execute_command(char **args) {
+  if (args[0] == NULL) {
+    return 0;
+  }
+  if (execute_builtin(args) == -1) {
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;
@@ -336,8 +388,8 @@ int execute_command(char **args) {
         char *fullpath;
         if (check_executables(dirnames[i], args[0], &fullpath)) {
           found_exe = true;
-          for (int i = 0; dirnames[i]; i++) {
-            free(dirnames[i]);
+          for (int j = 0; dirnames[j]; j++) {
+            free(dirnames[j]);
           }
           free(dirnames);
           // printf("%s is %s\n", args[index], fullpath);
