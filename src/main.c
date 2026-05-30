@@ -363,13 +363,15 @@ int execute_builtin(char **args) {
     if (strcmp(args[0], commands[i].name) == 0) {
       int index = 0;
       while (args[index]) {
+        printf("Entering");
         if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
           printf("Hello");
           int saved_stdout = builtin_redirection(args, args[index+1]);
           commands[i].func(args);
           restore_fds(args[index+1], saved_stdout);
           return 1;
-        } 
+        }
+        index++; 
       }
       commands[i].func(args);
       return 1;
