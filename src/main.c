@@ -404,7 +404,7 @@ int execute_command(char **args) {
     index++;
   }
   if (execute_builtin(args, outfile, redirect_stdout) == -1) {
-    print("not builtin");
+    printf("not builtin");
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;
