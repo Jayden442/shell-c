@@ -303,15 +303,27 @@ char **build_array(char *line) {
     return args;
 }
 
-int execute_external(char **args) {
+int execute_external(char **args, char *outfile, int redirect_stdout) {
   pid_t pid = fork();
   if (pid == 0) {
+    if (redirect_stdout) {
+      int fd = open(
+        outfile,
+        O_WRONLY | O_CREAT | O_TRUNC,
+        0644
+      );
+      if (fd < 0) {
+        printf("Error open");
+        exit(1);
+      }
+      
+      dup2(fd, STDOUT_FILENO);
+      close(fd);
+    }
     execvp(args[0], args);
     exit(1);
   }
-  else {
-    wait(NULL);
-  }
+  waitpid(pid, NULL, 0);
   return 1;
 }
 
@@ -356,24 +368,18 @@ int restore_fds(char *outfile, int saved_stdout) {
   return 1;
 }
 
-int execute_builtin(char **args) {
+int execute_builtin(char **args, char *outfile, int redirect_stdout) {
   int num_commands = sizeof(commands) / sizeof(commands[0]);
   bool found_builtin = false;
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
-      int index = 0;
-      while (args[index]) {
-        printf("Entering");
-        if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
-          printf("Hello");
-          int saved_stdout = builtin_redirection(args, args[index+1]);
-          commands[i].func(args);
-          restore_fds(args[index+1], saved_stdout);
-          return 1;
-        }
-        index++; 
+      if (redirect_stdout && outfile) {
+        int saved_stdout = builtin_redirection(args, outfile);
       }
       commands[i].func(args);
+      if (redirect_stdout && outfile) {
+        restore_fds(outfile, saved_stdout);
+      }
       return 1;
     }
   }
@@ -384,7 +390,18 @@ int execute_command(char **args) {
   if (args[0] == NULL) {
     return 0;
   }
-  if (execute_builtin(args) == -1) {
+  int index = 0;
+  char *outfile = NULL;
+  int redirect_stdout = -1;
+  while (args[index]) {
+    if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
+      outfile = args[index+1];
+      redirect_stdout = 1;
+      break;
+    }
+    index++;
+  }
+  if (execute_builtin(args, outfile, redirect_stdout) == -1) {
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;
@@ -399,7 +416,7 @@ int execute_command(char **args) {
           free(dirnames);
           // printf("%s is %s\n", args[index], fullpath);
           free(fullpath);
-          execute_external(args);
+          execute_external(args, outfile, redirect_stdout);
           break;
         }
       }
