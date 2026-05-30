@@ -179,6 +179,7 @@ int cd_cmd(char **args) {
     strncpy(cwd, args[1], arg_len);
     cwd[arg_len] = '\0';
   }
+  printf("%s", cwd);
   
   if (chdir(cwd) != 0) {
     printf("cd: %s: No such file or directory\n", cwd);
