@@ -406,7 +406,7 @@ int execute_command(char **args) {
   }
   int index = 0;
   char *outfile = NULL;
-  int redirect_stdout = -1;
+  int redirect_stdout = 0;
   while (args[index]) {
     if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
       outfile = args[index+1];
