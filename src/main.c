@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <fcntl.h>
 
 #define MAX_ARGS 32
 
