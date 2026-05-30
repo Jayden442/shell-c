@@ -36,6 +36,17 @@ command_entry commands[] = {
   {"cd", cd_cmd},
 };
 
+typedef struct {
+  const char *string;
+  int fileStream;
+} fileio;
+
+fileio streams[] = {
+  {">", STDOUT_FILENO},
+  {"1>", STDOUT_FILENO},
+  {"2>", STDERR_FILENO}
+}
+
 char **parse_path() {
   char *path_env = getenv("PATH");
   char *path_copy = strdup(path_env);
@@ -308,10 +319,10 @@ char **build_array(char *line) {
     return args;
 }
 
-int execute_external(char **args, char *outfile, int redirect_stdout) {
+int execute_external(char **args, char *outfile, int redirect) {
   pid_t pid = fork();
   if (pid == 0) {
-    if (redirect_stdout) {
+    if (redirect > -1) {
       int fd = open(
         outfile,
         O_WRONLY | O_CREAT | O_TRUNC,
@@ -322,7 +333,7 @@ int execute_external(char **args, char *outfile, int redirect_stdout) {
         exit(1);
       }
       
-      dup2(fd, STDOUT_FILENO);
+      dup2(fd, redirect);
       close(fd);
     }
     execvp(args[0], args);
@@ -332,12 +343,12 @@ int execute_external(char **args, char *outfile, int redirect_stdout) {
   return 1;
 }
 
-int builtin_redirection(char **args, char *outfile) {
+int builtin_redirection(char **args, char *outfile, int redirect) {
   int saved_stdout = -1;
   int fd = -1;
 
   if (outfile != NULL) {
-    saved_stdout = dup(STDOUT_FILENO); // duplicate stdout
+    saved_stdout = dup(redirect); // duplicate 
     if (saved_stdout == -1) {
       printf("Error dup");
       return -1;
@@ -354,7 +365,7 @@ int builtin_redirection(char **args, char *outfile) {
       return -1;
     }
 
-    if (dup2(fd, STDOUT_FILENO) == -1) { // stdout now goes to the file
+    if (dup2(fd, redirect) == -1) { // stdout now goes to the file
       printf("Error dup2");
       close(fd);
       return -1;
@@ -363,9 +374,9 @@ int builtin_redirection(char **args, char *outfile) {
   return saved_stdout;
 }
 
-int restore_fds(char *outfile, int saved_stdout) {
+int restore_fds(char *outfile, int saved_stdout, int redirect) {
   if (outfile != NULL) {
-    if (dup2(saved_stdout, STDOUT_FILENO) == -1) {
+    if (dup2(saved_stdout, redirect) == -1) {
       printf("Error dup2");
     }
     close(saved_stdout);
@@ -373,18 +384,18 @@ int restore_fds(char *outfile, int saved_stdout) {
   return 1;
 }
 
-int execute_builtin(char **args, char *outfile, int redirect_stdout) {
+int execute_builtin(char **args, char *outfile, int redirect) {
   int num_commands = sizeof(commands) / sizeof(commands[0]);
   bool found_builtin = false;
   int saved_stdout = -1;
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
-      if (redirect_stdout && outfile) {
-        saved_stdout = builtin_redirection(args, outfile);
+      if (redirect > -1 && outfile) {
+        saved_stdout = builtin_redirection(args, outfile, redirect);
       }
       commands[i].func(args);
-      if (redirect_stdout && outfile) {
-        restore_fds(outfile, saved_stdout);
+      if (redirect > -1 && outfile) {
+        restore_fds(outfile, saved_stdout, redirect);
       }
       return 1;
     }
@@ -405,18 +416,25 @@ int execute_command(char **args) {
   }
   int index = 0;
   char *outfile = NULL;
-  int redirect_stdout = 0;
+  int redirect = -1;
   while (args[index]) {
     if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
-      outfile = args[index+1];
-      redirect_stdout = 1;
-      remove_arg(args, index, 2); // remove '>' and the filename
-      // printf("outfile: %s redirect: %d\n", outfile, redirect_stdout);
-      break;
+      int num_file_streams = sizeof(streams) / sizeof(streams[0]);
+      for (int i = 0; i < num_file_streams; i++) {
+        if (strcmp(streams[i].string, args[index]) == 0) {
+          redirect = streams[i].fileStream;
+        }
+      }
+      if (redirect != -1) {
+        outfile = args[index+1];
+        remove_arg(args, index, 2); // remove '>' and the filename
+        break;
+      }
+  
     }
     index++;
   }
-  if (execute_builtin(args, outfile, redirect_stdout) == -1) {
+  if (execute_builtin(args, outfile, redirect) == -1) {
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;
@@ -431,7 +449,7 @@ int execute_command(char **args) {
           free(dirnames);
           // printf("%s is %s\n", args[index], fullpath);
           free(fullpath);
-          execute_external(args, outfile, redirect_stdout);
+          execute_external(args, outfile, redirect);
           break;
         }
       }
