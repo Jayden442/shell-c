@@ -371,6 +371,7 @@ int restore_fds(char *outfile, int saved_stdout) {
 int execute_builtin(char **args, char *outfile, int redirect_stdout) {
   int num_commands = sizeof(commands) / sizeof(commands[0]);
   bool found_builtin = false;
+  int saved_stdout = 0;
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
       if (redirect_stdout && outfile) {
