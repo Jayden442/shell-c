@@ -361,12 +361,13 @@ int execute_builtin(char **args) {
   bool found_builtin = false;
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
-      if (args[i+1] != NULL && args[i+2] != NULL) {
-        if (strcmp(">", args[i+1]) == 0 || strcmp("1>", args[i+1]) == 0) {
+      int index = 0;
+      while (args[index]) {
+        if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
           printf("Hello");
-          int saved_stdout = builtin_redirection(args, args[i+2]);
+          int saved_stdout = builtin_redirection(args, args[index+1]);
           commands[i].func(args);
-          restore_fds(args[i+2], saved_stdout);
+          restore_fds(args[index+1], saved_stdout);
           return 1;
         } 
       }
