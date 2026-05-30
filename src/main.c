@@ -361,7 +361,7 @@ int execute_builtin(char **args) {
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
       if (args[i+1] != NULL && args[i+2] != NULL) {
-        if (strcmp(">", args[i+1], 0) || strcmp("1>", args[i+1], 0)) {
+        if (strcmp(">", args[i+1]) == 0 || strcmp("1>", args[i+1]) == 0) {
         int saved_stdout = builtin_redirection(args, args[i+2]);
         commands[i].func(args);
         restore_fds(args[i+2], saved_stdout);
