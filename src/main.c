@@ -417,19 +417,16 @@ int execute_command(char **args) {
   char *outfile = NULL;
   int redirect = -1;
   while (args[index]) {
-    if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
-      int num_file_streams = sizeof(streams) / sizeof(streams[0]);
-      for (int i = 0; i < num_file_streams; i++) {
-        if (strcmp(streams[i].string, args[index]) == 0) {
-          redirect = streams[i].fileStream;
-        }
+    int num_file_streams = sizeof(streams) / sizeof(streams[0]);
+    for (int i = 0; i < num_file_streams; i++) {
+      if (strcmp(streams[i].string, args[index]) == 0) {
+        redirect = streams[i].fileStream;
       }
-      if (redirect != -1) {
-        outfile = args[index+1];
-        remove_arg(args, index, 2); // remove '>' and the filename
-        break;
-      }
-  
+    }
+    if (redirect != -1) {
+      outfile = args[index+1];
+      remove_arg(args, index, 2); // remove '>' and the filename
+      break;
     }
     index++;
   }
