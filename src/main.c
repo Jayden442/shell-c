@@ -179,7 +179,6 @@ int cd_cmd(char **args) {
     strncpy(cwd, args[1], arg_len);
     cwd[arg_len] = '\0';
   }
-  printf("%s", cwd);
   
   if (chdir(cwd) != 0) {
     printf("cd: %s: No such file or directory\n", cwd);
@@ -388,6 +387,16 @@ int execute_builtin(char **args, char *outfile, int redirect_stdout) {
   return -1;
 }
 
+int remove_arg(char **args, int index) {
+  int idx = index;
+  args[index] = NULL;
+  idx++;
+  while (args[idx] || args[idx-1]) {
+    args[idx - 1] = args[idx];
+  }
+  return 1;
+}
+
 int execute_command(char **args) {
   if (args[0] == NULL) {
     return 0;
@@ -399,6 +408,7 @@ int execute_command(char **args) {
     if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
       outfile = args[index+1];
       redirect_stdout = 1;
+      remove_arg(args, index);
       // printf("outfile: %s redirect: %d\n", outfile, redirect_stdout);
       break;
     }
