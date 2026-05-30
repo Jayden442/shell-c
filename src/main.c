@@ -363,10 +363,11 @@ int execute_builtin(char **args) {
     if (strcmp(args[0], commands[i].name) == 0) {
       if (args[i+1] != NULL && args[i+2] != NULL) {
         if (strcmp(">", args[i+1]) == 0 || strcmp("1>", args[i+1]) == 0) {
-        int saved_stdout = builtin_redirection(args, args[i+2]);
-        commands[i].func(args);
-        restore_fds(args[i+2], saved_stdout);
-        return 1;
+          printf("Hello");
+          int saved_stdout = builtin_redirection(args, args[i+2]);
+          commands[i].func(args);
+          restore_fds(args[i+2], saved_stdout);
+          return 1;
         } 
       }
       commands[i].func(args);
