@@ -1,0 +1,24 @@
+out2.txt
+
+/home/jayden:
+comp3004
+comp3005
+Desktop
+Documents
+Downloads
+hintonMarket.sqlite3
+Important
+Music
+pain.c
+Pictures
+proj
+Public
+qtcreator-6.0.2
+rover_test
+rover_ws
+shell
+snap
+Templates
+test
+Untitled Document 1
+Videos

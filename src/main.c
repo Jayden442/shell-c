@@ -393,9 +393,9 @@ int execute_builtin(char **args, char *outfile, int redirect_stdout) {
   return -1;
 }
 
-int remove_arg(char **args, int index) {
+int remove_arg(char **args, int index, int count) {
   for (int i = index; args[i] != NULL; i++) {
-    args[i] = args[i + 1];
+    args[i] = args[i + count];
   }
   return 1;
 }
@@ -411,7 +411,7 @@ int execute_command(char **args) {
     if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
       outfile = args[index+1];
       redirect_stdout = 1;
-      remove_arg(args, index);
+      remove_arg(args, index, 2); // remove '>' and the filename
       // printf("outfile: %s redirect: %d\n", outfile, redirect_stdout);
       break;
     }

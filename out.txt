@@ -1,1 +1,1 @@
-hi out.txt
+out.txt
