@@ -324,6 +324,9 @@ int execute_external(char **args, char *outfile, int redirect_stdout) {
     exit(1);
   }
   waitpid(pid, NULL, 0);
+  if (redirect_stdout) {
+    printf("\n");
+  }
   return 1;
 }
 
@@ -380,6 +383,7 @@ int execute_builtin(char **args, char *outfile, int redirect_stdout) {
       commands[i].func(args);
       if (redirect_stdout && outfile) {
         restore_fds(outfile, saved_stdout);
+        printf("\n");
       }
       return 1;
     }
@@ -415,7 +419,6 @@ int execute_command(char **args) {
     index++;
   }
   if (execute_builtin(args, outfile, redirect_stdout) == -1) {
-    printf("not builtin");
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;
