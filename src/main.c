@@ -398,12 +398,13 @@ int execute_command(char **args) {
     if (strcmp(">", args[index]) == 0 || strcmp("1>", args[index]) == 0) {
       outfile = args[index+1];
       redirect_stdout = 1;
-      printf("outfile: %s redirect: %d\n", outfile, redirect_stdout);
+      // printf("outfile: %s redirect: %d\n", outfile, redirect_stdout);
       break;
     }
     index++;
   }
   if (execute_builtin(args, outfile, redirect_stdout) == -1) {
+    print("not builtin");
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;
