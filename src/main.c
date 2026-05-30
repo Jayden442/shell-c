@@ -385,7 +385,6 @@ int execute_builtin(char **args, char *outfile, int redirect_stdout) {
       commands[i].func(args);
       if (redirect_stdout && outfile) {
         restore_fds(outfile, saved_stdout);
-        printf("\n");
       }
       return 1;
     }
