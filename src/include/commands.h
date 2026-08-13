@@ -1,3 +1,6 @@
+#ifndef COMMANDS_H
+#define COMMANDS_H
+
 typedef int (*command_func)(char **args);
 typedef struct {
     const char *name;
@@ -6,3 +9,5 @@ typedef struct {
 
 extern command_entry commands[];
 extern const int num_commands;
+
+#endif
