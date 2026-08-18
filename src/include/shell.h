@@ -14,9 +14,7 @@
 
 #define MAX_ARGS 32
 
-
 extern bool keep_looping;
-
 
 typedef struct {
   const char *string;
