@@ -4,19 +4,28 @@
 fileio streams[] = {
   {">", STDOUT_FILENO},
   {"1>", STDOUT_FILENO},
-  {"2>", STDERR_FILENO}
+  {"2>", STDERR_FILENO},
+  {">>", STDOUT_FILENO},
+  {"1>>", STDOUT_FILENO},
+  {"2>>", STDERR_FILENO},
 };
 
 extern const int num_commands;
 extern builtin_redirection(char **args, char *outfile, int redirect);
+extern builtin_append_redirection(char **args, char *outfile, int redirect);
 
-int execute_builtin(char **args, char *outfile, int redirect) {
+int execute_builtin(char **args, char *outfile, int redirect, int append) {
   bool found_builtin = false;
   int saved_stdout = -1;
   for (int i = 0; i < num_commands; i++) {
     if (strcmp(args[0], commands[i].name) == 0) {
       if (redirect > -1 && outfile) {
-        saved_stdout = builtin_redirection(args, outfile, redirect);
+        if (append > -1) {
+          saved_stdout = builtin_append_redirection(args, outfile, redirect);
+        }
+        else {
+          saved_stdout = builtin_redirection(args, outfile, redirect);
+        }
       }
       commands[i].func(args);
       if (redirect > -1 && outfile) {
@@ -59,11 +68,15 @@ int execute_command(char **args) {
   int index = 0;
   char *outfile = NULL;
   int redirect = -1;
+  int append = -1;
   while (args[index]) {
     int num_file_streams = sizeof(streams) / sizeof(streams[0]);
     for (int i = 0; i < num_file_streams; i++) {
       if (strcmp(streams[i].string, args[index]) == 0) {
         redirect = streams[i].fileStream;
+        if (i >= 3) { // append redirection
+          append = 1;
+        }
       }
     }
     if (redirect != -1) {
@@ -73,7 +86,7 @@ int execute_command(char **args) {
     }
     index++;
   }
-  if (execute_builtin(args, outfile, redirect) == -1) {
+  if (execute_builtin(args, outfile, redirect, append) == -1) {
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;

@@ -116,7 +116,6 @@ int cd_cmd(char **args) {
   return 1;
 }
 
-
 int builtin_redirection(char **args, char *outfile, int redirect) {
   int saved_stdout = -1;
   int fd = -1;
@@ -144,6 +143,39 @@ int builtin_redirection(char **args, char *outfile, int redirect) {
       close(fd);
       return -1;
     }
+    close(fd);
+  }
+  return saved_stdout;
+}
+
+int builtin_append_redirection(char **args, char *outfile, int redirect) {
+  int saved_stdout = -1;
+  int fd = -1;
+
+  if (outfile != NULL) {
+    saved_stdout = dup(redirect); // duplicate 
+    if (saved_stdout == -1) {
+      printf("Error dup");
+      return -1;
+    }
+    fd = open( // open file
+      outfile,
+      O_WRONLY | O_CREAT | O_APPEND,
+      0644
+    );
+
+    if (fd == -1) {
+      printf("Error open");
+      close(saved_stdout);
+      return -1;
+    }
+
+    if (dup2(fd, redirect) == -1) { // stdout now goes to the file
+      printf("Error dup2");
+      close(fd);
+      return -1;
+    }
+    close(fd);
   }
   return saved_stdout;
 }

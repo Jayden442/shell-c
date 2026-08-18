@@ -38,6 +38,6 @@ int cd_cmd(char **args);
 
 int execute_command(char **args);
 int execute_external(char **args, char *outfile, int redirect);
-int execute_builtin(char **args, char *outfile, int redirect);
+int execute_builtin(char **args, char *outfile, int redirect, int append);
 
 #endif
