@@ -5,34 +5,36 @@
 bool keep_looping = true;
 
 int getUserInput() {
-  size_t len = 0;
-  char *line = NULL;
-  if (getline(&line, &len, stdin) < 0) {
-    free(line);
-    return 0;
-  }
-  else {
-    char **args = build_array(line);
-    if (args) {
-      execute_command(args);
-      for (int i = 0; args[i] != NULL; i++) {
-        free(args[i]);
-      }
-      free(args);
+    char *line = readline("$ ");
+
+    if (line == NULL) {
+        return 0;
     }
+
+    char **args = build_array(line);
+
+    if (args) {
+        execute_command(args);
+
+        for (int i = 0; args[i] != NULL; i++) {
+            free(args[i]);
+        }
+
+        free(args);
+    }
+
     free(line);
-  }
-  return 1;
+    return 1;
 }
 
 int main(int argc, char *argv[]) {
-  // Flush after every printf
-  setbuf(stdout, NULL);
-  
-  while (keep_looping) {
-    printf("$ ");
-    getUserInput();
-  }
+    setbuf(stdout, NULL);
+    rl_attempted_completion_function = completion_function;
+    while (keep_looping) {
+        if (!getUserInput()) {
+            break;
+        }
+    }
 
-  return 0;
+    return 0;
 }

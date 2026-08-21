@@ -22,7 +22,7 @@ all: $(TARGET)
 
 # Link step (creates the executable in the root directory)
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lreadline
 
 # Compilation step for files inside repo/src
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c

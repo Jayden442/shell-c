@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <fcntl.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #define MAX_ARGS 32
 
@@ -37,5 +39,8 @@ int cd_cmd(char **args);
 int execute_command(char **args);
 int execute_external(char **args, char *outfile, int redirect);
 int execute_builtin(char **args, char *outfile, int redirect, int append);
+
+char *command_generator(const char *text, int state);
+char **completion_function(const char *text, int start, int end);
 
 #endif

@@ -179,3 +179,39 @@ int builtin_append_redirection(char **args, char *outfile, int redirect) {
   }
   return saved_stdout;
 }
+
+char *command_generator(const char *text, int state)
+{
+    static int index;
+    static const char *commands[] = {
+        "cd",
+        "echo",
+        "exit",
+        "pwd",
+        "type",
+        NULL
+    };
+
+    if (!state) {
+        index = 0;
+    }
+
+    while (commands[index] != NULL) {
+        const char *command = commands[index++];
+
+        if (strncmp(command, text, strlen(text)) == 0) {
+            return strdup(command);
+        }
+    }
+
+    return NULL;
+}
+
+char **completion_function(const char *text, int start, int end)
+{
+    if (start == 0) {
+        return rl_completion_matches(text, command_generator);
+    }
+
+    return NULL;
+}
