@@ -210,7 +210,12 @@ char *command_generator(const char *text, int state)
 char **completion_function(const char *text, int start, int end)
 {
     if (start == 0) {
-        return rl_completion_matches(text, command_generator);
+        char **matches = rl_completion_matches(text, command_generator);
+
+        if (matches == NULL) {
+            write(STDOUT_FILENO, "\a", 1);
+        }
+        return matches;
     }
 
     return NULL;
