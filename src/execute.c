@@ -10,11 +10,57 @@ fileio streams[] = {
   {"2>>", STDERR_FILENO},
 };
 
+job jobs_list[64];
+int num_jobs = 0;
+
+static char *join_args(char **args) {
+  size_t length = 1;
+
+  for (int i = 0; args[i] != NULL; i++) {
+    length += strlen(args[i]) + 1;
+  }
+
+  char *command = malloc(length);
+  if (command == NULL) {
+    return NULL;
+  }
+
+  command[0] = '\0';
+  for (int i = 0; args[i] != NULL; i++) {
+    if (i > 0) {
+      strcat(command, " ");
+    }
+    strcat(command, args[i]);
+  }
+
+  return command;
+}
+
 extern const int num_commands;
 extern builtin_redirection(char **args, char *outfile, int redirect);
 extern builtin_append_redirection(char **args, char *outfile, int redirect);
 
-int execute_builtin(char **args, char *outfile, int redirect, int append) {
+int execute_builtin(char **args, char *outfile, int redirect, int append, int background) {
+  if (background) {
+    pid_t pid = fork();
+
+    if (pid == 0) {
+      execute_builtin(args, outfile, redirect, append, false);
+      exit(0);
+    }
+
+    if (pid > 0) {
+      jobs_list[num_jobs].job_id = num_jobs;
+      jobs_list[num_jobs].pid = pid;
+      jobs_list[num_jobs].running = true;
+      jobs_list[num_jobs].command = join_args(args);
+      num_jobs++;
+      printf("[%d] %d\n", jobs_list[num_jobs - 1].job_id, pid);
+      return 1;
+    }
+
+    return -1;
+  }
   bool found_builtin = false;
   int saved_stdout = -1;
   for (int i = 0; i < num_commands; i++) {
@@ -37,7 +83,7 @@ int execute_builtin(char **args, char *outfile, int redirect, int append) {
   return -1;
 }
 
-int execute_external(char **args, char *outfile, int redirect) {
+int execute_external(char **args, char *outfile, int redirect, int background) {
   pid_t pid = fork();
   if (pid == 0) {
     if (redirect > -1) {
@@ -57,7 +103,17 @@ int execute_external(char **args, char *outfile, int redirect) {
     execvp(args[0], args);
     exit(1);
   }
-  waitpid(pid, NULL, 0);
+  if (!background) {
+    waitpid(pid, NULL, 0);
+  }
+  else {
+    jobs_list[num_jobs].job_id = num_jobs;
+    jobs_list[num_jobs].pid = pid;
+    jobs_list[num_jobs].running = true;
+    jobs_list[num_jobs].command = join_args(args);
+    num_jobs++;
+    printf("[%d] %d\n", jobs_list[num_jobs - 1].job_id, pid);
+  }
   return 1;
 }
 
@@ -69,6 +125,13 @@ int execute_command(char **args) {
   char *outfile = NULL;
   int redirect = -1;
   int append = -1;
+  bool background = false;
+  int num_args = get_num_args(args);
+
+  if (num_args > 0 && strcmp(args[num_args - 1], "&") == 0) {
+    background = true;
+    remove_arg(args, num_args - 1, 1);
+  }
   while (args[index]) {
     int num_file_streams = sizeof(streams) / sizeof(streams[0]);
     for (int i = 0; i < num_file_streams; i++) {
@@ -86,7 +149,7 @@ int execute_command(char **args) {
     }
     index++;
   }
-  if (execute_builtin(args, outfile, redirect, append) == -1) {
+  if (execute_builtin(args, outfile, redirect, append, background) == -1) {
       // printf("%s: not found\n", args[index]);
       // tokenize first
       bool found_exe = false;
@@ -101,7 +164,7 @@ int execute_command(char **args) {
           free(dirnames);
           // printf("%s is %s\n", args[index], fullpath);
           free(fullpath);
-          execute_external(args, outfile, redirect);
+          execute_external(args, outfile, redirect, background);
           break;
         }
       }
@@ -110,4 +173,23 @@ int execute_command(char **args) {
       }
     }
   return 0;
+}
+
+void reap_background_jobs(void) {
+    int status;
+    pid_t pid;
+
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+        for (int i = 0; i < num_jobs; i++) {
+            if (jobs_list[i].pid == pid) {
+                printf("[%d] Done %s\n", jobs_list[i].job_id, jobs_list[i].command);
+                free(jobs_list[i].command);
+
+                // Remove the job and reuse its array index
+                jobs_list[i] = jobs_list[num_jobs - 1];
+                num_jobs--;
+                break;
+            }
+        }
+    }
 }

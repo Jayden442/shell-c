@@ -7,6 +7,7 @@ command_entry commands[] = {
   {"type", type_cmd},
   {"pwd", pwd_cmd},
   {"cd", cd_cmd},
+  {"jobs", jobs_cmd},
 };
 
 const int num_commands = sizeof(commands) / sizeof(commands[0]);
@@ -113,6 +114,11 @@ int cd_cmd(char **args) {
     printf("cd: %s: No such file or directory\n", cwd);
     return 0;
   }
+  return 1;
+}
+
+int jobs_cmd(char **args) {
+  // Print the list of background jobs
   return 1;
 }
 

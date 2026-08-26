@@ -31,10 +31,10 @@ int main(int argc, char *argv[]) {
     setbuf(stdout, NULL);
     rl_attempted_completion_function = completion_function;
     while (keep_looping) {
+        reap_background_jobs();
         if (!getUserInput()) {
             break;
         }
     }
-
     return 0;
 }

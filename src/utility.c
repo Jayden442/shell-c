@@ -137,7 +137,6 @@ char **build_array(char *line) {
     return args;
 }
 
-
 char **parse_path() {
   char *path_env = getenv("PATH");
   char *path_copy = strdup(path_env);
