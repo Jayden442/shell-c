@@ -61,6 +61,12 @@ char **build_array(char *line) {
             break;
         }
 
+        if (line[i] == '|') {
+          args[arg_count++] = strdup("|");
+          i++;
+          continue;
+        }
+
         /* Worst-case token size = remaining string */
         char *token = malloc(strlen(&line[i]) + 1);
 
@@ -118,6 +124,10 @@ char **build_array(char *line) {
             /* End token only on whitespace outside quotes */
             if ((!in_quotes && !in_double_quotes) && isspace(line[i])) {
                 break;
+            }
+
+            if ((!in_quotes && !in_double_quotes) && line[i] == '|') {
+              break;
             }
 
             token[j++] = line[i++];

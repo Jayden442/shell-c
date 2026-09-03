@@ -40,6 +40,72 @@ extern const int num_commands;
 extern builtin_redirection(char **args, char *outfile, int redirect);
 extern builtin_append_redirection(char **args, char *outfile, int redirect);
 
+static void execute_pipeline_command(char **args) {
+  for (int i = 0; i < num_commands; i++) {
+    if (strcmp(args[0], commands[i].name) == 0) {
+      commands[i].func(args);
+      return;
+    }
+  }
+
+  execvp(args[0], args);
+  invalid_input(args[0]);
+}
+
+static int execute_pipeline(char **args, int pipe_index) {
+  int pipe_fds[2];
+  char **left = args;
+  char **right = &args[pipe_index + 1];
+  args[pipe_index] = NULL;
+
+  if (args[0] == NULL || right[0] == NULL) {
+    printf("syntax error near unexpected token `|'\n");
+    return 0;
+  }
+  
+  if (pipe(pipe_fds) == -1) {
+    perror("pipe");
+    return 0;
+  }
+
+  pid_t left_pid = fork();
+  if (left_pid == -1) {
+    perror("fork");
+    close(pipe_fds[0]);
+    close(pipe_fds[1]);
+    return 0;
+  }
+  if (left_pid == 0) {
+    dup2(pipe_fds[1], STDOUT_FILENO);
+    close(pipe_fds[0]);
+    close(pipe_fds[1]);
+    execute_pipeline_command(args);
+    _exit(127);
+  }
+
+  pid_t right_pid = fork();
+  if (right_pid == -1) {
+    perror("fork");
+    close(pipe_fds[0]);
+    close(pipe_fds[1]);
+    waitpid(left_pid, NULL, 0);
+    return 0;
+  }
+  if (right_pid == 0) {
+    dup2(pipe_fds[0], STDIN_FILENO);
+    close(pipe_fds[0]);
+    close(pipe_fds[1]);
+    execute_pipeline_command(right);
+    _exit(127);
+  }
+
+  close(pipe_fds[0]);
+  close(pipe_fds[1]);
+  waitpid(left_pid, NULL, 0);
+  waitpid(right_pid, NULL, 0);
+  return 1;
+}
+
 int execute_builtin(char **args, char *outfile, int redirect, int append, int background) {
   if (background) {
     pid_t pid = fork();
@@ -132,6 +198,13 @@ int execute_command(char **args) {
     background = true;
     remove_arg(args, num_args - 1, 1);
   }
+
+  for (int i = 0; args[i] != NULL; i++) {
+    if (strcmp(args[i], "|") == 0) {
+      return execute_pipeline(args, i);
+    }
+  }
+
   while (args[index]) {
     int num_file_streams = sizeof(streams) / sizeof(streams[0]);
     for (int i = 0; i < num_file_streams; i++) {
